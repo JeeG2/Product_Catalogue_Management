@@ -7,10 +7,9 @@ const checkAuth = require('../authentication/check-auth');
 
 router.get('/', (req, res, next) => {
     Product.find()
-    .select('name price _id')
+    .select('name price size color grade created_at _id')
     .exec()
     .then(docs => {
-        //console.log(docs);
         if(docs.length >= 0)
         {
             const response = {
@@ -19,6 +18,10 @@ router.get('/', (req, res, next) => {
                     return {
                         name : doc.name,
                         price : doc.price,
+                        size : doc.size,
+                        color : doc.color,
+                        grade : doc.grade,
+                        created_at : doc.created_at,
                         _id : doc._id,
                         request : {
                             type : 'GET',
@@ -47,7 +50,11 @@ router.post('/', checkAuth, (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        price: req.body.price
+        price: req.body.price,
+        size: req.body.size,
+        color: req.body.color,
+        grade: req.body.grade,
+        created_at: new Date()
     });
     product.save().then(result => {
         console.log(result);
@@ -56,6 +63,10 @@ router.post('/', checkAuth, (req, res, next) => {
             createdProduct: {
                 name : result.name,
                 price : result.price,
+                size : result.size,
+                color : result.color,
+                grade : result.grade,
+                created_at : result.created_at,
                 _id : result._id,
                 request : {
                     type : 'POST',
@@ -74,7 +85,7 @@ router.post('/', checkAuth, (req, res, next) => {
 
 router.get('/:productId', (req, res, next) => {
     const id = req.params.productId;
-    Product.findById(id).select('name price _id').exec().then(doc => {
+    Product.findById(id).select('name price size color grade created_at _id').exec().then(doc => {
         console.log("From database",doc);
         if(doc)
         {
@@ -129,7 +140,7 @@ router.delete('/:productId', checkAuth, (req, res, next) => {
             request : {
                 type : 'POST',
                 url : 'http://localhost:3000/products',
-                body : {name : 'String', price : 'Number'}
+                body : {name : 'String', price : 'Number', size: 'Number', color: 'String', grade: {'A':1,'B':2,'C':3}, created_at: 'Date'}
             }
         });
     })
